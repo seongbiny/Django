@@ -6,7 +6,6 @@ from .forms import ArticleForm
 @require_safe
 def index(request):
     articles = Article.objects.order_by('-pk')
-    
     context = {
         'articles': articles,
     }
@@ -64,3 +63,4 @@ def update(request, pk):
     return render(request, 'articles/update.html', context)
 
     
+
