@@ -75,5 +75,27 @@ cmd 라인 바로 아래에 (venv)가 생기는데 활성화 되었다는 뜻이
 
      settings.py 에서 `INSTALLED_APPS`에 `'movies',` 추가
 
+5. view 작성하기
 
+   movies/views.py 작성한다. 뷰를 호출하려면 이와 연결된 URL 이 있어야 한다.
+
+   pjt04/urls.py 에서 `import include` 하고 `urlpatterns` 리스트에 `include()` 함수 추가한다.
+
+6.  데이터베이스 설치
+
+   ```python
+   $ python manage.py migrate
+   ```
+
+7.  모델 만들기
+
+   모델이란 부가적인 메타데이터를 가진 데이터베이스의 구조(layout) 이다.
+
+   movies에 models.py 파일을 생성한다.
+
+   ```python
+   $ python manage.py makemigrations
+   ```
+
+   
 
