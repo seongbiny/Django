@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>update</h1>
+  <form action="{% url 'musics:update' music.pk %}" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button>수정</button>
+  </form>
+  <a href="{% url 'musics:index' %}">back</a>
+{% endblock content %}

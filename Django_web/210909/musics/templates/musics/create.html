@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>NEW!</h1>
+  {% load static %}
+  <img src="{% static 'musics/twice.jpg' %}" alt="sample image">
+  <form action="{% url 'musics:create' %}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="작성">
+  </form>
+  <a href="{% url 'musics:index' %}">back</a>
+{% endblock content %}

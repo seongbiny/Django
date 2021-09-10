@@ -84,7 +84,7 @@ cmd 라인 바로 아래에 (venv)가 생기는데 활성화 되었다는 뜻이
 6.  데이터베이스 설치
 
    ```python
-   $ python manage.py migrate
+   $ python manage.py makemigrations movies
    ```
 
 7.  모델 만들기
@@ -94,7 +94,7 @@ cmd 라인 바로 아래에 (venv)가 생기는데 활성화 되었다는 뜻이
    movies에 models.py 파일을 생성한다.
 
    ```python
-   $ python manage.py makemigrations
+   $ python manage.py migrate  
    ```
 
    

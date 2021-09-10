@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <img src="{% static 'musics/twice.jpg' %}" alt="smaple image">
+  <h2>DETAIL</h2>
+  <h3>{{ music.pk }}번째 song</h3>
+  <img src="{{ music.image.url }}" alt="{{ music.image }}">
+  <p>제목: {{ music.title }}</p>
+  <p>가사: {{ music.lyrics }}</p>
+  <p>작성시간: {{ music.created_at }}</p>
+  <p>수정시간: {{ music.updated_at }}</p>
+  <a href="{% url 'musics:update' music.pk %}">UPDATE</a>
+  <form action="{% url 'musics:delete' music.pk %}" method="POST">
+    {% csrf_token %}
+    <button>DELETE</button>
+  </form>
+  <a href="{% url 'musics:index' %}">back</a>
+{% endblock content %}
