@@ -75,27 +75,100 @@ cmd 라인 바로 아래에 (venv)가 생기는데 활성화 되었다는 뜻이
 
      settings.py 에서 `INSTALLED_APPS`에 `'movies',` 추가
 
-5. view 작성하기
+5.  urls.py 작성하기
 
-   movies/views.py 작성한다. 뷰를 호출하려면 이와 연결된 URL 이 있어야 한다.
+    import include, path('movies/', include('movie.urls')),
 
-   pjt04/urls.py 에서 `import include` 하고 `urlpatterns` 리스트에 `include()` 함수 추가한다.
+6.  필요한 폴더, 파일 생성하기
 
-6.  데이터베이스 설치
+    `movies/urls.py` `movies/forms.py` `movies/templates/movies` + 각 종 html...
+
+7.  movies/urls.py 작성하기
+
+    ```python
+    from django.urls import path
+    from . import views
+    
+    app_name =
+    urlpatterns = [
+        
+    ]
+    ```
+
+8.  **중요** movies/models.py 작성하기
+
+9.  **중요** movies/forms.py 작성하기 **data validation(유효성검사)**
+
+    ```python
+    from django import forms
+    from .models import Movie
+    
+    class MovieForm(forms.ModelForm):
+    	class Meta:
+            model = Movie
+            fields = '__all__'
+    ```
+
+10. view 작성하기
+
+   movies/views.py 작성한다. 
 
    ```python
-   $ python manage.py makemigrations movies
-   ```
-
-7.  모델 만들기
-
-   모델이란 부가적인 메타데이터를 가진 데이터베이스의 구조(layout) 이다.
-
-   movies에 models.py 파일을 생성한다.
-
-   ```python
-   $ python manage.py migrate  
-   ```
-
+   from django.shortcuts import render, redirect
+   from .models import Movie
+   from .forms import MovieForm
    
+   def create(request):
+       pass
+   
+   def index(request):
+       movies = Movie.objects.order_by('-pk') # 목록을 쭈르륵 보여주는 것
+       context = {
+           'movies': movies,
+       }
+       return render(request, 'movies/index.html', context)
+   
+   def detail(request, pk):
+       movie = Movie.objects.get(pk=pk) # 목록 하나만 보여주는 것
+       ...
+   ```
+
+11. 데이터베이스 설치
+
+    ```python
+    $ python manage.py makemigrations
+    ```
+
+12. 모델 만들기
+
+    모델이란 부가적인 메타데이터를 가진 데이터베이스의 구조(layout) 이다.
+
+    movies에 models.py 파일을 생성한다.
+
+    ```python
+    $ python manage.py migrate  
+    ```
+
+13.  admin 만들기
+
+     ```python
+     $ python manage.py createsuperuser
+     ```
+
+     ```python
+     # movies/admin.py
+     
+     from django.contrib import admin
+     from .models import Movie
+     
+     admin.site.register(Movie)
+     ```
+
+14.  templates/base.html 만들기
+
+     settings.py 에서 TEMPLATES=[ {'DIRS': [BASE_DIR / 'templates'], ..}] 추가하기
+
+     
+
+
 
