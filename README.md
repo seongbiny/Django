@@ -114,7 +114,8 @@ cmd 라인 바로 아래에 (venv)가 생기는데 활성화 되었다는 뜻이
    movies/views.py 작성한다. 
 
    ```python
-   from django.shortcuts import render, redirect
+   from django.shortcuts import render, redirect, get_object_or_404
+   from django.views.decorators.http import require_safe, require_POST, require_http_method
    from .models import Movie
    from .forms import MovieForm
    
@@ -171,4 +172,20 @@ cmd 라인 바로 아래에 (venv)가 생기는데 활성화 되었다는 뜻이
      
 
 
+
+장고는 http method를 GET, POST 밖에 이해하지 못한다.
+
+대문자로 쓰는 이유 = 재할당 하지말라는 뜻
+
+```python
+$ pip install django-bootstrap-v5
+```
+
+settings.py `INSTALLED_APPS`에 `bootstrap5` 추가 // cdn 코드를 직접 들고오는게 더 좋음
+
+`{% load bootstrap5 %}` `{% bootstrap_pagination page_obj %}`
+
+templates/ 안에 `_navbar.html` 넣어서 {% include '_navbar.html' %} 으로 나누면 유지보수 쉬워짐
+
+django paginator
 
