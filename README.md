@@ -31,7 +31,7 @@ cmd 라인 바로 아래에 (venv)가 생기는데 활성화 되었다는 뜻이
 * 설치된 패키지 목록 확인하기 : `pip list`
 
 * 장고 패키지 설치 : `pip install django django_extensions`
-  * sett
+  * settings.py 에 등록
 * 패키지 목록 관리 : `pip freeze > requirements.txt`
   * 다른 가상환경에서 이 패키지들을 설치하려면 : `pip install -r requirements.txt`
 
