@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block content %}
-  <img src="{% static 'musics/twice.jpg' %}" alt="smaple image">
   <h2>DETAIL</h2>
   <h3>{{ music.pk }}번째 song</h3>
   <img src="{{ music.image.url }}" alt="{{ music.image }}">

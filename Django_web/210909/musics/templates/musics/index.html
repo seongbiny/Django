@@ -6,7 +6,6 @@
   {% for music in musics %}
     <p>노래 번호: {{ music.pk }}</p>
     <p>노래 제목: {{ music.title }}</p>
-    <p>노래 가사: {{ music.lyrics }}</p>
     <a href="{% url 'musics:detail' music.pk %}">detail</a>
   {% endfor %}
 {% endblock content %}

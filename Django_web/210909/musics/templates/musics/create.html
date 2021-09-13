@@ -3,7 +3,7 @@
 {% block content %}
   <h1>NEW!</h1>
   {% load static %}
-  <img src="{% static 'musics/twice.jpg' %}" alt="sample image">
+  {% comment %} <img src="{% static 'musics/twice.jpg' %}" alt="sample image"> {% endcomment %}
   <form action="{% url 'musics:create' %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
