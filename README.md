@@ -1,8 +1,6 @@
 ## 프레임워크 기반 웹 페이지 구현
 
-각 단계별 구현 과정, 학습 내용 및 어려웠던 부분
-
-
+![1](md-images/1.PNG)
 
 ### Django 시작하기
 
@@ -37,9 +35,11 @@ cmd 라인 바로 아래에 (venv)가 생기는데 활성화 되었다는 뜻이
 
 #### 2.
 
-1)README파일과 gitignore파일 생성
+1)README파일과 gitignore파일 생성 ( git이 관리하지 않을 내용들 )
 
 `touch README.md .gitignore`
+
+windows, python, venv, django ... 
 
 #### 3. git 버전관리
 
@@ -49,16 +49,22 @@ cmd 라인 바로 아래에 (venv)가 생기는데 활성화 되었다는 뜻이
 
 #### 4. django 진짜 시작
 
-1.  project 생성 
+1. project 생성 
 
-   ```djan
-   django-admin startproject pjt04 .
+   ```python
+   $ django-admin startproject pjt04 .
+   ```
+
+   if project를 잘못생성했다면?
+
+   ```python
+   $ rm -rf pjt04/ manage.py
    ```
 
 2.  서버 확인
 
-   ```django
-   python manage.py runserver
+   ```python
+   $ python manage.py runserver
    ```
 
 3.  언어, 시간 설정
@@ -95,21 +101,49 @@ cmd 라인 바로 아래에 (venv)가 생기는데 활성화 되었다는 뜻이
     ]
     ```
 
-8.  **중요** movies/models.py 작성하기
+8. **중요** movies/models.py 작성하기
 
-9.  **중요** movies/forms.py 작성하기 **data validation(유효성검사)**
+   모델이란 부가적인 메타데이터를 가진 데이터베이스의 구조(layout) 이다.
+
+   movies에 models.py 파일을 생성한다.
+
+   ```python
+   $ python manage.py makemigrations
+   $ python manage.py migrate
+   ```
+
+9.   admin 만들기
 
     ```python
-    from django import forms
+    # movies/admin.py
+    
+    from django.contrib import admin
     from .models import Movie
     
-    class MovieForm(forms.ModelForm):
-    	class Meta:
-            model = Movie
-            fields = '__all__'
+    admin.site.register(Movie)
     ```
 
-10. view 작성하기
+    ```python
+    $ python manage.py createsuperuser
+    ```
+
+10.   urls.py 만지기
+
+     `pjt04/urls.py`
+
+     ```python
+     # movies/urls.py
+     
+     from django.urls import path
+     from . import views
+     
+     app_name = 'accounts'
+     urlpatterns = [
+     
+     ]
+     ```
+
+11. view 작성하기
 
    movies/views.py 작성한다. 
 
@@ -134,42 +168,13 @@ cmd 라인 바로 아래에 (venv)가 생기는데 활성화 되었다는 뜻이
        ...
    ```
 
-11. 데이터베이스 설치
 
-    ```python
-    $ python manage.py makemigrations
-    ```
 
-12. 모델 만들기
+templates/base.html 만들기
 
-    모델이란 부가적인 메타데이터를 가진 데이터베이스의 구조(layout) 이다.
+settings.py 에서 TEMPLATES=[ {'DIRS': [BASE_DIR / 'templates'], ..}] 추가하기
 
-    movies에 models.py 파일을 생성한다.
 
-    ```python
-    $ python manage.py migrate  
-    ```
-
-13.  admin 만들기
-
-     ```python
-     $ python manage.py createsuperuser
-     ```
-
-     ```python
-     # movies/admin.py
-     
-     from django.contrib import admin
-     from .models import Movie
-     
-     admin.site.register(Movie)
-     ```
-
-14.  templates/base.html 만들기
-
-     settings.py 에서 TEMPLATES=[ {'DIRS': [BASE_DIR / 'templates'], ..}] 추가하기
-
-     
 
 
 
