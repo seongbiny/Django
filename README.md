@@ -129,6 +129,8 @@ windows, python, venv, django ...
 
 10.   urls.py 만지기
 
+     **urls.py 는 순서가 중요하다 !**
+
      `pjt04/urls.py`
 
      ```python
@@ -168,13 +170,11 @@ windows, python, venv, django ...
        ...
    ```
 
+12. `templates/movies` 를 만들고 필요한 html들 생성
 
+13. `templates/base.html` 만들기
 
-templates/base.html 만들기
-
-settings.py 에서 TEMPLATES=[ {'DIRS': [BASE_DIR / 'templates'], ..}] 추가하기
-
-
+    settings.py 에서 TEMPLATES=[ {'DIRS': [BASE_DIR / 'templates'], ..}] 추가하기
 
 
 

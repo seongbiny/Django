@@ -65,3 +65,7 @@ def update(request, pk):
         'form': form,
     }
     return render(request, 'articles/update.html', context)
+
+
+
+# dfadslfak;sldfk';asdfasd
