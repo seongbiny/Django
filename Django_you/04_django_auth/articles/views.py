@@ -67,5 +67,3 @@ def update(request, pk):
     return render(request, 'articles/update.html', context)
 
 
-
-# dfadslfak;sldfk';asdfasd
