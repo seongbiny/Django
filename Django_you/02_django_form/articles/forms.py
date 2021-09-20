@@ -28,10 +28,13 @@ class ArticleForm(forms.ModelForm):
                 'placeholder': 'Enter the title',
                 'maxlength': 10,
             }
-        )
+        ),
+        error_messages={
+            'required': '내용 적으삼'
+        }
     )
     content = forms.CharField(
-        label='제목',
+        label='내용',
         widget=forms.Textarea(
             attrs={
                 'class': 'my-content',
@@ -39,7 +42,7 @@ class ArticleForm(forms.ModelForm):
                 'rows': 5,
                 'cols': 50,
             }
-        )
+        ),
     )
 
     class Meta:

@@ -41,8 +41,10 @@ def detail(request, pk):
 def delete(request, pk):
     # article = Article.objects.get(pk=pk)
     article = get_object_or_404(Article, pk=pk)
-    article.delete()
-    return redirect('articles:index')
+    if request.method == 'POST':
+        article.delete()
+        return redirect('articles:index')
+    return redirect('articles:detail', article.pk)
 
 @require_http_methods(['GET', 'POST']) # 이 뷰 함수에 들어올 수 있는건 겟, 포스트 두가지
 def update(request, pk):
