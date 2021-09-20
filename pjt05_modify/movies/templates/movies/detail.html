@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <div class="card center-text m-5">
+   <h2 class="text-center">detail</h2>
+   <img src="{{ movie.poster_path }}" height="300" width="300" alt="poster">
+   <h3>{{ movie.pk }}번째 영화</h3>
+   <p>제목: {{ movie.title }}</p>
+   <p>내용: {{ movie.overview }}</p>
+   <hr>
+   <a href="{% url 'movies:update' movie.pk %}">update</a>
+   <form action="{% url 'movies:delete' movie.pk %}" method="POST">
+     {% csrf_token %}
+     <button>delete</button>
+   </form>
+   <a href="{% url 'movies:index' %}">back</a>
+  </div>
+{% endblock content %}
