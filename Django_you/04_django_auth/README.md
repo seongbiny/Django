@@ -1,0 +1,356 @@
+# README
+
+## Authentication System 1
+
+### The Django Authentication System
+
+* 필수 구성은 settings.py / INSTALLED_APPS 에 `django.contrib.auth`, `django.contrib.contenttypes`로 이미 구성됨
+
+**Authentication (인증)**
+
+* 신원 확인
+* 사용자가 자신이 누구인지 확인하는 것
+
+**Authorization (권한, 허가)**
+
+* 권한 부여
+* 인증된 사용자가 수행할 수 있는 작업을 결정
+
+### 두번째 앱 (accounts) 생성하기
+
+```python
+$ python manage.py startapp accounts
+```
+
+* accounts로 지정하는 것을 권장
+
+```python
+# settings.py
+
+INSTALLED_APPS = [
+	...
+	'accounts',
+	...
+]
+```
+
+```python
+# crud/urls.py
+
+urlpatterns = [
+	path('accounts/', include('accounts.urls')),
+]
+```
+
+```python
+# accounts/urls.py
+
+from django.urls import path
+from . import views
+
+app_name = 'accounts'
+urlpatterns = [
+	...
+]
+```
+
+**app등록 및 url 설정!!**
+
+### 로그인
+
+* 로그인은 Session을 Create하는 로직과 같음
+* Django는 우리가 session의 메커니즘에 생각하지 않게끔 도움
+* 이를 위해 인증에 관한 built-in-forms를 제공
+
+#### AuthenticationForm
+
+* 사용자 로그인을 위한 form
+* request를 첫번째 인자로 취함
+
+#### login(request, user, backend=None)
+
+* 현재 세션에 연결하려는 인증 된 사용자가 있는 경우 login() 함수가 필요
+* 사용자를 로그인하며 view 함수에서 사용 됨
+* HttpRequest 객체와 User 객체가 필요
+* django의 session framework를 사용하여 세션에 user의 ID를 저장(==로그인)
+
+```python
+# accounts/urls.py
+
+from django.urls import path
+from . import views
+
+app_name = 'accounts'
+urlpatterns = [
+	path('login/', views.login, name='login')
+	...
+]
+```
+
+```python
+# accounts/views.py
+
+from django.shortcuts import render, redirect
+from django.contrib.auth import login as auth_login
+from django.contrib.auth.forms import AuthenticationForm
+from django.views.decorators.http import require_http_methods
+
+@require_http_methods(['GET', 'POST'])
+def login(request):
+	if request.method == 'POST':
+		form = AuthenticationForm(request, request.POST)
+		if form.is_valid():
+			auth_login(request, form.get_user())
+			return redirect('articles:index')
+	else:
+		form = AuthenticationForm()
+	context = {
+		'form': form
+	}
+	return render(request, 'accounts/login.html', context)
+```
+
+```html
+# accounts/login.html
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Login</h1>
+  <form action="{% url 'accounts:login' %}" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit">
+  </form>
+{% endblock content %}
+```
+
+```html
+# base.html
+
+<body>
+  <div class="container">
+    <a href="{% url 'accounts:login' %}">Login</a>
+    {% block content %}
+    {% endblock content %}
+  </div>
+	...
+</body>
+```
+
+### Authentication data in templates
+
+**현재 로그인 되어있는 유저 정보 출력**
+
+```html
+# base.html
+
+<body>
+  <div class="container">
+    <h3>Hello, {{ user }}</h3>
+    <a href="{% url 'accounts:login' %}">Login</a>
+    {% block content %}
+    {% endblock content %}
+  </div>
+	...
+</body>
+```
+
+### 로그아웃
+
+* 로그아웃은 Session을 Delete하는 로직과 같음
+
+#### logout(request)
+
+* HttpRequest 객체를 인자로 받고 반환 값이 없음
+* 사용자가 로그인하지 않은 경우 오류를 발생시키지 않음
+* 현재 요청에 대한 session data를 DB에서 완전히 삭제하고, 클라이언트의 쿠키에서도 sessionid가 삭제됨
+* 이는 다른 사람이 동일한 웹 브라우저를 사용하여 로그인하고, **이전 사용자의 세션 데이터에 액세스하는 것을 방지하기 위함**
+
+```python
+# accounts/urls.py
+
+path('logout/', views.logout, name='logout'),
+```
+
+```python
+# accounts/views.py
+
+from django.views.decorators.http import require_http_methods, require_POST
+from django.contrib.auth import logout as auth_logout
+
+@require_POST
+def logout(request):
+    auth_logout(request)
+    return redirect('articles:index')
+```
+
+```html
+# base.html
+
+<body>
+  <div class="container">
+    <h3>Hello, {{ user }}</h3>
+    <a href="{% url 'accounts:login' %}">Login</a>
+    <form action="{% url 'accounts:logout' %}" method="POST">
+        {% csrf_token %}
+        <input type="submit" value="Logout">
+    </form>
+    {% block content %}
+    {% endblock content %}
+  </div>
+	...
+</body>
+```
+
+### 로그인 사용자에 대한 접근 제한
+
+#### Limiting access to logged-in users
+
+* 로그인 사용자에 대한 엑세스 제한 2가지 방법
+  1.  **is_authenticated** attribute
+  2. **login_required** decorator
+
+1번 방법 사용
+
+```html
+# base.html
+
+<body>
+  <div class="container">
+    {% if request.user.is_authenticated %}
+      <h3>Hello, {{ user }}</h3>
+      <form action="{% url 'accounts:logout' %}" method="POST">
+        {% csrf_token %}
+        <input type="submit" value="Logout">
+      </form>
+      </form>
+    {% else %}
+      <a href="{% url 'accounts:login' %}">Login</a>
+    {% endif %}
+    {% block content %}
+    {% endblock content %}
+  </div>
+	...
+</body>
+```
+
+```python
+# accounts/views.py
+
+# 인증된 사용자(로그인 상태)라면 로그인 로직을 수행할 수 없도록 처리
+@require_http_methods(['GET', 'POST'])
+def login(request):
+    if request.user.is_authenticated:
+        return redirect('articles:index')
+  
+# 인증된 사용자(로그인 상태)만 로그아웃 로직을 수행할 수 있도록 처리
+@require_POST
+def logout(request):
+    if request.user.is_authenticated:
+        auth_logout(request)
+    return redirect('aritcles:index')
+```
+
+```html
+# articles/index.html
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Articles</h1>
+  {% if request.user.is_authenticated %}
+    <a href="{% url 'articles:create' %}">[CREATE]</a>
+  {% else %}
+    <a href="{% url 'accounts:login' %}">[새 글을 작성하려면 로그인하세요.]</a>
+  {% endif %}
+  <hr>
+  ...
+  {% endfor %}
+{% endblock content %}
+```
+
+2번 방법 사용
+
+```python
+# articles/views.py
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def create(request):
+	pass
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def update(request, pk):
+    pass
+```
+
+1. view 함수에 login_required 데코레이터 작성
+2. 비로그인 상태에서 /accounts/create/ 경로로 요청 보내기
+3. URL에 next 문자열 매개변수 확인
+
+```python
+# accounts/views.py
+
+@require_http_methods(['GET', 'POST'])
+def login(request):
+    if request.user.is_authenticated:
+        return redirect('articles:index')
+
+    if request.method == 'POST':
+        form = AuthenticationForm(request, request.POST)
+        if form.is_valid():
+            auth_login(request, form.get_user())
+            return redirect(request.GET.get('next') or 'articles:index')
+    else:
+        form = AuthenticationForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/login.html', context)
+```
+
+```html
+# accounts/login.html
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Login</h1>
+  <form action="" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit">
+  </form>
+{% endblock content %}
+```
+
+**문제점**
+
+1. 비로그인 상태에서 게시글 삭제 시도(POST)
+2. 로그인 검증
+3. 로그인 페이지 응답(next='articles/1/delete/')
+4. 로그인 요청(POST)
+5. 로그인 성공 & next 경로로 리다이렉트 (GET)
+6. 겟 요청으로 들어오는걸 데코레이터가 막기 때문에 405 Method Not Allowed 발생
+
+```python
+# aricles/views.py
+
+@require_POST
+def delete(request, pk):
+    if request.user.is_authenticated:
+        article = get_object_or_404(Article, pk=pk)
+        article.delete()
+    return redirect('articles:index')
+```
+
+**login_required는 GET method request를 처리할 수 있는 view 함수에서만 사용해야 함**
+
+
+
+
+
