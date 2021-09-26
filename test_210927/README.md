@@ -182,3 +182,62 @@ def delete(request, pk):
     return redirect('articles/index.html')
 ```
 
+13. signup 신규 사용자 생성
+
+```python
+@require_http_methods(['GET', 'POST'])
+def signup(request):
+    # 이미 인증되어 있는 사용자인지
+    if request.user.is_authenticated:
+        return redirect('accounts:index')
+
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        # 데이터가 유효하다면
+        if form.is_valid():
+            # DB에 저장
+            user = form.save()
+            # 사용자를 로그인
+            auth_login(request, user)
+            return redirect('articles:index')
+    else:
+        form = UserCreationForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/signup.html', context)
+```
+
+14. login 기존 사용자 인증
+
+```python
+@require_http_methods(['GET', 'POST'])
+def login(request):
+    # 인증되어있는 사용자는 index로 리다이렉트
+    if request.user.is_authenticated:
+        return redirect('aricles:index')
+    if request.method == 'POST':
+        form = AuthenticationForm(request, request.POST) # 인자 2개
+        if form.is_valid():
+            # 유효하다면 로그인 form.get_user() 외우기
+            auth_login(request, form.get_user())
+            # 로그인 이전 페이지 url 인자 주의
+            return redirect(request.GET.get('next') or 'articles:index')
+    else:
+        form = AuthenticationForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/login.html', context)
+```
+
+14. logout 인증된 사용자 로그아웃
+
+```python
+@require_POST
+def logout(request):
+    if request.user.is_authenticated:
+        auth_logout(request)
+    return redirect('aritlces:index')
+```
+
