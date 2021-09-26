@@ -1,19 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>DETAIL</h2>
-  <h3>{{ movie.pk }} 번째 글</h3>
-  <hr>
-  <p>제목 : {{ movie.title }}</p>
-  <p>내용 : {{ movie.content }}</p>
-  <p>영화 제목 : {{ movie.movie_title }}</p>
-  <p>글 내용 : {{ movie.content }}</p>
-  <p>rank : {{ movie.rank }}</p>
-  <hr>
-  <a href="{% url 'community:update' movie.pk %}">[UPDATE]</a>
-  <form action="{% url 'community:delete' movie.pk %}" method="POST">
+  <h1>detail</h1>
+  <p>영화: {{ review.movie_title }}</p>
+  <p>제목: {{ review.title }}</p>
+  <p>내용: {{ review.content }}</p>
+  <p>점수: {{ review.rank }}</p>
+  <a href="{% url 'community:update' review.pk %}">update</a>
+  <form action="{% url 'community:delete' review.pk %}" method='POST'>
     {% csrf_token %}
-    <input type="submit" value="DELETE">
+    <input type="submit" value="delete">
   </form>
-  <a href="{% url 'community:index' %}">[back]</a>
+  <a href="{% url 'community:index' %}">back</a>
 {% endblock content %}

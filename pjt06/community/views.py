@@ -1,65 +1,57 @@
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods, require_POST, require_safe
-from django.contrib.auth.decorators import login_required
-from .models import Community
-from .forms import CommunityForm
-
-# Create your views here.
+from .models import Review
+from .forms import ReviewForm
 
 @require_safe
 def index(request):
-    community = Community.objects.order_by('-pk')
-    
+    reviews = Review.objects.order_by('-pk')
     context = {
-        'community': community,
+        'reviews': reviews,
     }
     return render(request, 'community/index.html', context)
 
-@login_required
 @require_http_methods(['GET', 'POST'])
 def create(request):
     if request.method == 'POST':
-        form = CommunityForm(request.POST)
+        form = ReviewForm(request.POST)
         if form.is_valid():
-            community = form.save()
-            return redirect('community:detail', community.pk)
+            review = form.save()
+            return redirect('community:detail', review.pk)
     else:
-        form = CommunityForm()
+        form = ReviewForm()
     context = {
         'form': form,
     }
     return render(request, 'community/create.html', context)
 
-
 @require_safe
-def detail(request, pk):
-    movie = get_object_or_404(Community, pk=pk)
+def detail(request, review_pk):
+    review = get_object_or_404(Review, pk=review_pk)
     context = {
-        'movie': movie,
+        'review': review,
     }
     return render(request, 'community/detail.html', context)
 
-
-@require_POST
-def delete(request, pk):
-    community = get_object_or_404(Community, pk=pk)
-    community.delete()
-    return redirect('community:index')
-
-@login_required
 @require_http_methods(['GET', 'POST'])
-def update(request, pk):
-    movie = get_object_or_404(Community, pk=pk)
+def update(request, review_pk):
+    review = get_object_or_404(Review, pk=review_pk)
     if request.method == 'POST':
-        form = CommunityForm(request.POST, instance=movie)
+        form = ReviewForm(request.POST, instance=review)
         if form.is_valid():
             form.save()
-            return redirect('community:detail', movie.pk)
+            return redirect('community:detail', review.pk)
     else:
-        form = CommunityForm(instance=movie)
+        form = ReviewForm(instance=review)
     context = {
-        'movie': movie,
+        'review': review,
         'form': form,
     }
     return render(request, 'community/update.html', context)
+
+@require_POST
+def delete(request, review_pk):
+    if request.user.is_authenticated:
+        review = get_object_or_404(Review, pk=review_pk)
+        review.delete()
+    return redirect('community:index')

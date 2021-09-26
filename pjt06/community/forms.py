@@ -1,9 +1,8 @@
 from django import forms
-from .models import Community
+from .models import Review
 
-
-class CommunityForm(forms.ModelForm):
+class ReviewForm(forms.ModelForm):
 
     class Meta:
-        model = Community
+        model = Review
         fields = '__all__'
