@@ -21,7 +21,9 @@ def create(request):
     if request.method == 'POST':
         form = ArticleForm(request.POST)
         if form.is_valid():
-            article = form.save()
+            article = form.save(commit=False)
+            article.user = request.user
+            article.save()
             return redirect('articles:detail', article.pk)
     else:
         form = ArticleForm()
@@ -35,7 +37,7 @@ def create(request):
 def detail(request, pk):
     article = get_object_or_404(Article, pk=pk)
     comment_form = CommentForm()
-    comments = article.comments.all()
+    comments = article.comment_set.all()
     context = {
         'article': article,
         'comment_form': comment_form,
@@ -47,25 +49,29 @@ def detail(request, pk):
 # @login_required
 @require_POST
 def delete(request, pk):
+    article = get_object_or_404(Article, pk=pk)
     if request.user.is_authenticated:
-        article = get_object_or_404(Article, pk=pk)
-        article.delete()
-    return redirect('articles:index')
+        if request.user == article.user:
+            article.delete()
+            return redirect('articles:index')
+    return redirect('articles:detail', article.pk)
 
 
 @login_required
 @require_http_methods(['GET', 'POST'])
 def update(request, pk):
     article = get_object_or_404(Article, pk=pk)
-    if request.method == 'POST':
-        form = ArticleForm(request.POST, instance=article)
-        if form.is_valid():
-            form.save()
-            return redirect('articles:detail', article.pk)
+    if request.user == article.user:
+        if request.method == 'POST':
+            form = ArticleForm(request.POST, instance=article)
+            if form.is_valid():
+                form.save()
+                return redirect('articles:detail', article.pk)
+        else:
+            form = ArticleForm(instance=article)
     else:
-        form = ArticleForm(instance=article)
+        return redirect('articles:index')
     context = {
-        'article': article,
         'form': form,
     }
     return render(request, 'articles/update.html', context)
@@ -78,6 +84,7 @@ def comments_create(request, pk):
         if comment_form.is_valid():
             comment = comment_form.save(commit=False)
             comment.article = article
+            comment.user = request.user
             comment.save()
         return redirect('articles:detail', article.pk)
     return redirect('accounts:login')
@@ -86,5 +93,6 @@ def comments_create(request, pk):
 def comments_delete(request, article_pk, comment_pk):
     if request.user.is_authenticated:
         comment = get_object_or_404(Comment, pk=comment_pk)
-        comment.delete()
+        if request.user == comment.user:
+            comment.delete()
     return redirect('articles:detail', article_pk)
