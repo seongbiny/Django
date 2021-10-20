@@ -53,7 +53,7 @@ def signup(request):
         form = CustomUserCreationForm()
     context = {
         'form': form,
-    } 
+    }
     return render(request, 'accounts/signup.html', context)
 
 
