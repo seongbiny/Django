@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.forms import (
@@ -9,6 +9,7 @@ from django.contrib.auth.forms import (
 from django.views.decorators.http import require_http_methods, require_POST
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
 from .forms import CustomUserChangeForm, CustomUserCreationForm
 
 # Create your views here.
@@ -96,3 +97,34 @@ def change_password(request):
         'form': form,
     }
     return render(request, 'accounts/change_password.html', context)
+
+
+def profile(request, username):
+    person = get_object_or_404(get_user_model(), username=username)
+    context = {
+        'person': person,
+    }
+    return render(request, 'accounts/profile.html', context)
+
+
+@require_POST
+def follow(request, user_pk):
+    if request.user.is_authenticated:
+        me = request.user
+        you = get_object_or_404(get_user_model(), pk=user_pk)
+        # person = get_object_or_404(get_user_model(), pk=user_pk)
+
+        # 너와 내가 다른 사람이여야 팔로우를 진행할 수 있음
+        # 나 자신은 팔로우해서는 안됨
+        if me != you:
+            # 내가 상대방(person)의 팔로워 목록에 있다면
+            # if person.followers.filter(pk=request.user.pk).exists():
+            if you.followers.filter(pk=me.pk).exists():
+            # if request.user in person.followers.all():
+            # 언팔로우
+                you.followers.remove(me)
+            else:
+            # 팔로우
+                you.followers.add(me)
+        return redirect('accounts:profile', you.username)
+    return redirect('accounts:login')

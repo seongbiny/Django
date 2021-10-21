@@ -9,10 +9,24 @@
   {% endif %}
   <hr>
   {% for article in articles %}
-    <p>작성자 : {{ article.user }}</p>
+    <p>작성자 : 
+      <a href="{% url 'accounts:profile' article.user.username %}">{{ article.user }}</a>
+    </p>
     <p>글 번호 : {{ article.pk }}</p>
     <p>글 제목 : {{ article.title }}</p>
     <p>글 내용 : {{ article.content }}</p>
+    <div>
+      <form action="{% url 'articles:likes' article.pk %}" method="POST">
+        {% csrf_token %}
+        {% if user in article.like_users.all %}
+          <span style="color:green"><i class="fas fa-cat"></i></span>
+          <input type="submit" value="좋아요 취소">
+        {% else %}
+          <i class="fas fa-cat"></i>
+          <input type="submit" value="좋아요">
+        {% endif %}
+      </form>
+    </div>
     <a href="{% url 'articles:detail' article.pk %}">[DETAIL]</a>
     <hr>
   {% endfor %}

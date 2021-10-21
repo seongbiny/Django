@@ -99,3 +99,21 @@ def comments_delete(request, article_pk, comment_pk):
         if request.user == comment.user:
             comment.delete()
     return redirect('articles:detail', article_pk)
+
+
+@require_POST
+def likes(request, article_pk):
+    if request.user.is_authenticated:
+        article = get_object_or_404(Article, pk=article_pk)
+
+        # 현재 좋아요를 요청하는 회원(request.user)이
+        # 해당 게시글의 좋아요를 누른 회원 목록에 이미 있다면,
+        if article.like_users.filter(pk=request.user.pk).exists():
+        # if request.user in article.like_users.all(): 
+            # 좋아요 취소
+            article.like_users.remove(request.user)
+        else:
+            # 좋아요 하기
+            article.like_users.add(request.user)
+        return redirect('articles:index')
+    return redirect('accounts:login')
