@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>DETAIL</h2>
+  <h3>{{ review.pk }} 번째 리뷰</h3>
+  <hr>
+  <p>리뷰 제목 : {{ review.title }}</p>
+  <p>영화 제목 : {{ review.movie_title }}</p>
+  <p>평점 : {{ review.rank }}</p>
+  <p>리뷰 내용 : {{ review.content }}</p>
+  <p>작성시각 : {{ review.created_at }}</p>
+  <p>수정시각 : {{ review.updated_at }}</p>
+  <hr>
+
+  <a href="{% url 'community:index' %}">[back]</a>
+  <hr>
+  <h4>댓글 목록</h4>
+  {% if comments %}
+    <p><b>{{ comments|length }}개의 댓글이 있습니다.</b></p>
+  {% endif %}
+  <ul>
+    {% for comment in comments %}
+      <li>
+        {{ comment.user }} - {{ comment.content }}
+      </li>
+    {% empty %}
+      <p>댓글이 없어요..</p>
+    {% endfor %}
+  </ul>
+  <div>
+    <form action="{% url 'community:likes' review.pk %}" method="POST">
+      {% csrf_token %}
+      <div>좋아요 수 : {{ review.like_users.all|length }}</div>
+      {% if user in review.like_users.all %}
+        <i class="fas fa-cat"></i>
+        <input type="submit" value="좋아요 취소">
+      {% else %}
+        <span style="color:white"><i class="fas fa-cat"></i></span>
+        <input type="submit" value="좋아요">
+      {% endif %}
+    </form>
+  </div>
+  <hr>
+  {% if request.user.is_authenticated %}
+    <form action="{% url 'community:comments_create' review.pk %}" method="POST">
+      {% csrf_token %}
+      {{ comment_form }}
+      <input type="submit">
+    </form>
+  {% else %}
+    <a href="{% url 'accounts:login' %}">[댓글을 작성하려면 로그인하세요.]</a>
+  {% endif %}
+{% endblock content %}
