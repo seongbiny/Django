@@ -142,6 +142,175 @@ class Comment(models.Model):
 * 위와 같이 변경 하면 article.comment_set은 더이상 사용할 수 없고, **article.comments**로 대체됨
 * [주의] 역참조 시 사용할 이름 수정 후, migration 과정 필요
 
+### Comment CREATE
+
+> CommentForm 작성
+
+```python
+# articles/forms.py
+
+from .models import Article, Comment
+
+class CommentForm(forms.ModelForm):
+    
+    class Meta:
+        model = Comment
+        fields = '__all__'
+```
+
+> detail 페이지에서 CommentForm 출력
+
+```python
+# articles/views.py
+
+from .forms import ArticleForm, CommentForm
+
+def detail(request, pk):
+    article = get_object_or_404(Article, pk=pk)
+    comment_form = CommentForm()
+    context = {
+        'article': article,
+        'comment_form': comment_form,
+    }
+    return render(request, 'articles/detail.html'. context)
+```
+
+```html
+<!-- articles/detail.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+	...
+	<a href="{% url 'articles:index' %}">[back]</a>
+  	<hr>
+    <form action="" method="POST">
+      {% csrf_token %}
+      {{ comment_form }}
+      <input type="submit">
+    </form>
+{% endblock content %}
+```
+
+* ForeignKeyField를 작성자가 직접 입력하는 상황이 발생
+
+![image-20211028232003657](md-images/image-20211028232003657.png)
+
+* CommentForm에서 외래 키 필드 출력 제외
+
+```python
+# articles/forms.py
+
+class CommentForm(forms.ModelForm):
+    
+    class Meta:
+        model = Comment
+        exclude = ('article',)
+```
+
+> 댓글 작성 로직
+
+```python
+# articles/urls.py
+
+app_name = 'articles'
+urlpatterns = [
+    path('<int:pk>/comments/', views.comments_create, name='comments_create'),
+]
+```
+
+```html
+<!-- articles/detail.html -->
+
+<form action="{% url 'articles:comments_create' article.pk %}" method="POST">
+    {% csrf_token %}
+    {{ comment_form }}
+    <input type="submit">
+</form> 
+```
+
+```python
+# articles/views.py
+
+@require_POST
+def comments_create(request, pk):
+    article = get_object_or_404(Article, pk=pk)
+    comment_form = CommentForm(request.POST)
+    if comment_form.is_vaild():
+        comment = comment_form.save(commit=False)
+        comment.article = article
+        comment.save()
+    return redirect('articles:detail', article.pk)
+```
+
+#### 'save()' method
+
+* save(commit=False)
+  * 아직 **데이터베이스에 저장되지 않은 인스턴스를 반환**
+  * 저장하기 전에 **객체에 대한 사용자 지정 처리를 수행할 때** 유용하게 사용
+
+### Comment READ
+
+> 댓글 출력
+
+* 특정 article에 있는 모든 댓글을 가져온 후 context에 추가
+
+```python
+# articles/views.py
+
+from .models import Article, Comment
+
+def detail(request, pk):
+    article = get_object_or_404(Article, pk=pk)
+    comment_form = CommentForm()
+    comments = article.comment_set.all()
+    context = {
+        'article': article,
+        'comment_form': comment_form,
+        'comments': comments,
+    }
+    return render(request, 'articles/detail.html', context)
+```
+
+![image-20211028235824291](md-images/image-20211028235824291.png)
+
+### Comment DELETE
+
+```python
+# articles/urls.py
+
+app_name = 'articles'
+urlpatterns = [
+    path('<int:article_pk>/comments/<int:comment_pk>/delete/', views.comments_delete, name='comments_delete'),
+]
+```
+
+```python
+# articles/views.py
+
+@require_POST
+def comments_delete(request, article_pk, comment_pk):
+    comment = get_object_or_404(Comment, pk=comment_pk)
+    comment.delete()
+    return redirect('articles:detail', article_pk)
+```
+
+![image-20211029000137946](md-images/image-20211029000137946.png)
+
+#### 인증된 사용자의 경우만 댓글 작성 및 삭제
+
+![image-20211029000207843](md-images/image-20211029000207843.png)
+
+### Comment 추가사항
+
+#### 댓글 개수 출력하기
+
+![image-20211029001924495](md-images/image-20211029001924495.png)
+
+#### 댓글이 없는 경우 대체 컨텐츠 출력 (DTL의 for-empty 태그 활용)
+
+![image-20211029002002578](md-images/image-20211029002002578.png)
+
 ### User 모델 대체하기
 
 * 일부 프로젝트에서는 Django의 **내장 User 모델이 제공하는 인증 요구사항이 적절하지 않을 수 있음**
