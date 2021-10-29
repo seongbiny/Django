@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'articles',
+    'music',
     'django_seed',
     'django_extensions',
     'rest_framework',
