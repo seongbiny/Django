@@ -11,7 +11,7 @@ from .serializers.review import TopReviewListSerializer, ReviewSerializer
 
 
 @api_view(['GET', 'POST'])
-def actor_list_or_create(request):
+def actor_list(request):
     
     def actor_list():
         actors = Actor.objects.all()
@@ -31,7 +31,7 @@ def actor_list_or_create(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-def actor_detail_or_update_or_delete(request, actor_pk):
+def actor_detail(request, actor_pk):
     actor = get_object_or_404(Actor, pk=actor_pk)
 
     def actor_detail():
@@ -57,7 +57,7 @@ def actor_detail_or_update_or_delete(request, actor_pk):
 
 
 @api_view(['GET', 'POST'])
-def movie_list_or_create(request):
+def movie_list(request):
 
     if request.method == 'GET':
         movies = Movie.objects.all()
@@ -72,7 +72,7 @@ def movie_list_or_create(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-def movie_detail_or_update_or_delete(request, movie_pk):
+def movie_detail(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
     
     if request.method == 'GET':
@@ -89,16 +89,11 @@ def movie_detail_or_update_or_delete(request, movie_pk):
         movie.delete()
         return Response(data='delete successfully', status=status.HTTP_204_NO_CONTENT)
 
-
 @api_view(['GET'])
-def top_review_list(request):
-    reviews = Review.objects\
-            .prefetch_related('actors')\
-            .select_related('movie')\
-
+def review_list(request):
+    reviews = Review.objects.all()
     serializer = TopReviewListSerializer(reviews, many=True)
     return Response(serializer.data)
-
 
 @api_view(['POST'])
 def create_review(request, movie_pk):
@@ -110,15 +105,11 @@ def create_review(request, movie_pk):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-def review_detail_or_update_or_delete(request, movie_pk, review_pk):
+def review_detail(request, movie_pk, review_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
     
-
-    qs = Review.objects\
-            .prefetch_related('actors')\
-            .select_related('movie')
     
-    review = get_object_or_404(qs, pk=review_pk)
+    review = get_object_or_404(Review, pk=review_pk)
 
     def review_detail():
         review.save()

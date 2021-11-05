@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <h2>Movie</h2>
+  <p>제목 : {{ movie.title }}</p>
+  <p><img src="{{ movie.poster_path }}" alt style="width: 300px;"></p>
+  <p>개봉일 : {{ movie.release_date }}</p>
+  <p>popularity : {{ movie.popularity }}</p>
+  <p>투표수 : {{ movie.vote_count }}</p>
+  <p>투표평균 : {{ movie.vote_average }}</p>
+  <p>줄거리 : {{ movie.overview }}</p>
+  장르 :
+  {% for genre in movie.genres.all %}
+    {{ genre.name }}
+  {% endfor %}
+  <hr>
+  <a href="{% url 'movies:index' %}">[back]</a>
+{% endblock %}
+
+
